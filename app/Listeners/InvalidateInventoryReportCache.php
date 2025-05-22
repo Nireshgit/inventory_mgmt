@@ -23,8 +23,8 @@ class InvalidateInventoryReportCache
     public function handle(StockMovementRecorded $event): void
     {
         \Log::info('Listener is listening', [$event]);
-        $productId = $event->movement->productId;
-        $warehouseId = $event->movement->warehouseId;
+        $productId = $event->stockMovement->product_id;
+        $warehouseId = $event->stockMovement->warehouse_id;
 
         \Log::info('productId ', [$productId]);
 

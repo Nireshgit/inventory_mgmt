@@ -9,6 +9,7 @@ use App\Http\Requests\StoreStockMovementRequest;
 use App\Models\StockMovement;
 use App\Events\StockMovementRecorded;
 use App\Jobs\LogStockMovementJob;
+use Illuminate\Validation\ValidationException;
 
 class StockMovementController extends Controller
 {
@@ -17,12 +18,28 @@ class StockMovementController extends Controller
     	//\Log::info(auth()->user());
         $movement = DB::transaction(function () use ($req) {
         	//\Log::info($req->validated());
+            $query = StockMovement::query()
+                ->selectRaw('product_id, warehouse_id, SUM(CASE WHEN type="in" THEN quantity ELSE -quantity END) as stock')
+                ->where('product_id',$req->product_id)
+                ->where('warehouse_id',$req->warehouse_id)
+                ->groupBy('product_id','warehouse_id')
+                ->first();
+
+            if ($req->type === 'out') {
+                $availableStock = $query?->stock ?? 0;
+
+                if ($availableStock < $req->quantity) {
+                    \Log::error('Quantity cannot exceed available stock for "out" type.');
+                    throw ValidationException::withMessages([
+                        'quantity' => ['Quantity cannot exceed available stock for "out" type.'],
+                    ]);
+                }
+            }
+
             $m = StockMovement::create($req->validated());
 
-            // flush report cache *after* changes to the stock movements
+            // Dispatch event and job(async log) after changes
             StockMovementRecorded::dispatch($m);
-
-            // async log
             LogStockMovementJob::dispatch($m->id);
 
             return $m;

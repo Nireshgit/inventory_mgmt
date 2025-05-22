@@ -7,6 +7,64 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+Installation Process
+
+    Clone the Repository
+
+git clone <your-repo-url>
+cd <your-project-directory>
+
+Install Dependencies
+
+composer install
+
+    Use composer install to install dependencies based on composer.lock to maintain version consistency.
+
+Set Environment Variables
+
+cp .env.example .env
+
+    Update the following in your .env file:
+
+    DB_DATABASE=your_db_name
+    DB_USERNAME=your_db_user
+    DB_PASSWORD=your_db_password
+
+    QUEUE_CONNECTION=database
+    CACHE_DRIVER=database
+
+Generate Application Key
+
+php artisan key:generate
+
+Run Migrations
+
+php artisan migrate
+
+Seed Dummy Data
+
+php artisan db:seed
+
+Start Queue Listener
+
+php artisan queue:listen
+
+Serve the Application
+
+    php artisan serve
+
+Optional (Recommended for Production)
+
+    Create jobs table if not already done:
+
+php artisan queue:table
+php artisan migrate
+
+Cache configuration and routes:
+
+php artisan config:cache
+php artisan route:cache
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

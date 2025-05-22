@@ -31,14 +31,35 @@ class DatabaseSeeder extends Seeder
 
         $rows = [];
         for ($i = 0; $i < 10_000; $i++) {
+            $productId = $productIds->random();
+            $warehouseId = $warehouseIds->random();
+            $key = $productId . '-' . $warehouseId;
+
+            $maxOutQty = $stockLevels[$key] ?? 0;
+            $type = rand(0, 1) ? 'in' : 'out';
+
+            // If no stock, force type to 'in'
+            if ($type === 'out' && $maxOutQty <= 0) {
+                $type = 'in';
+            }
+
+            $qty = rand(1, 25);
+
+            if ($type === 'out' && $qty > $maxOutQty) {
+                $qty = $maxOutQty; // prevent going negative
+            }
+
+            // Adjust stock level
+            $stockLevels[$key] = ($stockLevels[$key] ?? 0) + ($type === 'in' ? $qty : -$qty);
+
             $rows[] = [
-                'product_id'   => $productIds->random(),
-                'warehouse_id' => $warehouseIds->random(),
-                'quantity'     => rand(1, 25),
-                'type'         => rand(0,1)?'in':'out',
-                'movement_date'=> now()->subDays(rand(0, 365))->toDateString(),
-                'created_at'   => now(),
-                'updated_at'   => now(),
+                'product_id'    => $productId,
+                'warehouse_id'  => $warehouseId,
+                'quantity'      => $qty,
+                'type'          => $type,
+                'movement_date' => now()->subDays(rand(0, 365))->toDateString(),
+                'created_at'    => now(),
+                'updated_at'    => now(),
             ];
         }
         
