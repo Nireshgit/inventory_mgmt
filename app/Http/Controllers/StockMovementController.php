@@ -39,8 +39,9 @@ class StockMovementController extends Controller
             $m = StockMovement::create($req->validated());
 
             // Dispatch event and job(async log) after changes
-            StockMovementRecorded::dispatch($m);
-            LogStockMovementJob::dispatch($m->id);
+            StockMovementRecorded::dispatch($m); ///Event with Listener
+            
+            LogStockMovementJob::dispatch($m->id); /// Job to log the stock movements
 
             return $m;
         });
