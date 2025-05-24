@@ -21,6 +21,11 @@ class InventoryController extends Controller
                 return $this->buildReport($productId, $warehouseId);
             });
 
+        //Cache will be available for 30 mins. Another req before 15 mins, will return cached value/data. If req between 15 to 30 min,  will return cached value/data and refresh the cached data. There is no req within 30 min, then cached data will be expired.
+        // $data = Cache::flexible($cacheKey, [900, 1800], function () use ($productId, $warehouseId) {
+        //         return $this->buildReport($productId, $warehouseId);
+        //     }); 
+
         return response()->json($data);
     }
 
